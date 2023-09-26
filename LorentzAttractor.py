@@ -61,7 +61,26 @@ def plot_with_gradient(axes, c1, c2,
         axes.plot(x[i-1:i+gap], y[i-1:i+gap], z[i-1:i+gap], c=colorcode, linewidth=linewidth, alpha=gradient)
 
 
+def simple_spin(axes, theta, omega, timestep):
+    elev, azim = theta[0], theta[1]
+    vx, vy = omega[0], omega[1]
 
+    elev = elev + vx*timestep
+    azim = azim + vy*timestep
+
+    if elev > 360:
+        elev = 0
+    elif elev < -360:
+        elev = 0
+    '''
+    if azim > 90:
+        azim = 90
+    elif azim < -90:
+        azim = -90
+    '''
+    axes.view_init(elev=elev, azim=azim)
+
+    return [elev, azim], [vx, vy]
 
 
 def return_a_bright_color():
@@ -122,9 +141,12 @@ manager.full_screen_toggle()
 
 
 while True:
-    x, y, z = 2, 2, 2
+    # x, y, z = 2, 2, 2
 
     x, y, z = 5*random.random()+0.5, 5*random.random()+0.5, 5*random.random()+0.5
+
+    omega = [62.5*(2*random.random() - 1), 62.5*(2*random.random() - 1)]
+    theta = [180*random.random(), 180*(2*random.random()-1)]
 
     # sigma = 10
     # rho = 28
@@ -153,12 +175,9 @@ while True:
         if counter % 15 == 0:
             ax.clear()
 
-            '''
-            ax.plot( np.array(df['x'].tail(100000)), np.array(df['y'].tail(100000)), np.array(df['z'].tail(100000)), 
-                            color='white')
-            '''
+            theta, omega = simple_spin(ax, theta, omega, dt)
 
-            
+
             plot_with_gradient(ax, c1, c2,
                                 np.array(df['x'].tail(50000)), 
                                 np.array(df['y'].tail(50000)), 
